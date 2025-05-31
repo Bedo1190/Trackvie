@@ -18,7 +18,7 @@ const db = admin.firestore();
 // === READ documents from a collection ===
 app.get('/TestUrls', async (req, res) => {
   try {
-    const snapshot = await db.collection('videos').get();
+    const snapshot = await db.collection('TestUrls').get();
     const videos = [];
 
     snapshot.forEach(doc => {
@@ -28,6 +28,25 @@ app.get('/TestUrls', async (req, res) => {
     res.status(200).json(videos);
   } catch (error) {
     console.error('Error fetching videos:', error);
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+});
+
+// === READ specific documents from a collection ===
+app.get('/TestUrls/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const docRef = db.collection('TestUrls').doc(id);
+    const doc = await docRef.get();
+
+    if (!doc.exists) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+
+    res.status(200).json({ id: doc.id, ...doc.data() });
+  } catch (error) {
+    console.error('Error fetching document:', error);
     res.status(500).json({ error: 'Something went wrong' });
   }
 });
