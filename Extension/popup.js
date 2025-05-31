@@ -9,6 +9,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const autoSaveToggle = document.getElementById("autoSaveToggle");
   const autosaveTxt = document.getElementById("autosaveTxt");
   let isUrlFound = true;
+    // Tooltip delay logic
+  const dropdownItems = document.querySelectorAll('.dropdown-item');
+
+  dropdownItems.forEach(item => {
+    let timeout;
+
+    item.addEventListener('mouseenter', () => {
+      timeout = setTimeout(() => {
+        item.classList.add('show-tooltip');
+      }, 300); // tooltip appear delay
+    });
+
+    item.addEventListener('mouseleave', () => {
+      clearTimeout(timeout);
+      item.classList.remove('show-tooltip');
+    });
+  });
+
 
   // Ask background for the current tab URL
   chrome.runtime.sendMessage({ type: "get-url" }, (response) => {
@@ -31,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (dropdown.classList.contains("show")) {
       document.querySelectorAll(".dropdown-item").forEach((item, index) => {
         item.style.animation = "none";
-        item.offsetHeight; // trigger reflow
+        item.offsetHeight; 
         item.style.animation = `dropIn 0.3s ease forwards`;
         item.style.animationDelay = `${index * 0.05}s`;
       });

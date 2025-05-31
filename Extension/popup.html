@@ -150,6 +150,26 @@
         transform: translateY(20px);
         animation: dropIn 0.3s ease forwards;
       }
+      .dropdown-item .tooltip {
+        position: absolute;
+        right: 120%; /* place it to the left of the icon */
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: #FE4A49;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 12px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.5s ease;
+      }
+
+      /* Show tooltip on hover */
+      .dropdown-item.show-tooltip .tooltip {
+        opacity: 1;
+      }
 
       .dropdown-item:nth-child(1) {
         animation-delay: 0.05s;
@@ -232,10 +252,20 @@
     
     <button id="settings-btn">+</button>
     <div id="dropdown-menu" class="hidden">
-      <div class="dropdown-item"><i class="fa-solid fa-heart"></i></div>
-      <div class="dropdown-item"><i class="fa-solid fa-user"></i></div>
-      <div class="dropdown-item"><i class="fa-solid fa-trash"></i></div>
+      <div class="dropdown-item">
+        <span class="tooltip">fav</span>
+        <i class="fa-solid fa-heart"></i>
+      </div>
+      <div class="dropdown-item">
+        <span class="tooltip">profile</span>
+        <i class="fa-solid fa-user"></i>
+      </div>
+      <div class="dropdown-item">
+        <span class="tooltip">delete</span>
+        <i class="fa-solid fa-trash"></i>
+      </div>
     </div>
+
 
     <button id="save-btn"type="submit">Save</button>
 
