@@ -1,5 +1,5 @@
 import styled from "styled-components";
-
+import Card from "./Card";
 function Homepage() {
   return (
     <StyledWrapper>
@@ -29,7 +29,7 @@ function Homepage() {
       <div id="c">c</div>
       <div id="d">d</div>
       <div id="e">e</div>
-      <div id="f">f</div>
+      <div id="f"><Card/></div>
       <div id="g">g</div>
       <div id="h">h</div>
     </StyledWrapper>

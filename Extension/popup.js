@@ -12,19 +12,25 @@ document.addEventListener("DOMContentLoaded", () => {
     // Tooltip delay logic
   const dropdownItems = document.querySelectorAll('.dropdown-item');
 
-  dropdownItems.forEach(item => {
+  dropdownItems.forEach((item, index) => {
     let timeout;
 
     item.addEventListener('mouseenter', () => {
       timeout = setTimeout(() => {
         item.classList.add('show-tooltip');
-      }, 300); // tooltip appear delay
+      }, 300); //tooltip appear delay
     });
 
     item.addEventListener('mouseleave', () => {
       clearTimeout(timeout);
       item.classList.remove('show-tooltip');
     });
+    //redirect to Trackvie
+    if (index === 1) {
+      item.addEventListener('click', () => {
+        chrome.tabs.create({ url: "http://localhost:3000" }); 
+      });
+    }
   });
 
 
