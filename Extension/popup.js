@@ -27,25 +27,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const isRotated = settingsBtn.classList.toggle("rotated");
     settingsBtn.style.transform = isRotated ? "rotate(45deg)" : "rotate(0deg)";
+
+    if (dropdown.classList.contains("show")) {
+      document.querySelectorAll(".dropdown-item").forEach((item, index) => {
+        item.style.animation = "none";
+        item.offsetHeight; // trigger reflow
+        item.style.animation = `dropIn 0.3s ease forwards`;
+        item.style.animationDelay = `${index * 0.05}s`;
+      });
+    }
   });
 
   saveBtn.addEventListener("click", () => {
-    if(isUrlFound){ 
-      //showName.textContent = "Show saved!";
+    if (isUrlFound) {
+      notification.textContent = "Show saved!";
       notification.classList.add("show");
 
       setTimeout(() => {
         notification.classList.remove("show");
-      }, 1500);}
-    else{
-      notification.textContent ="Couldn't save show"
+      }, 1500);
+    } else {
+      notification.textContent = "Couldn't save show";
       notification.classList.add("show");
 
       setTimeout(() => {
         notification.classList.remove("show");
       }, 1500);
     }
-   
   });
 
   autoSaveToggle.addEventListener("change", () => {
@@ -58,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   window.addEventListener("click", (e) => {
-    if (!dropdown.contains(e.target)) {
+    if (!dropdown.contains(e.target) && e.target !== settingsBtn) {
       dropdown.classList.remove("show");
       settingsBtn.classList.remove("rotated");
       settingsBtn.style.transform = "rotate(0deg)";
