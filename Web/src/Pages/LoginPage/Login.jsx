@@ -1,8 +1,6 @@
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { db } from './firebase';
-
 
 function LoginPage() {
   const navigate = useNavigate();
