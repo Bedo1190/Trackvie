@@ -1,0 +1,64 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color:#1d1d1d;
+
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+:root {
+  --mainbg: 
+    conic-gradient(from 60deg at 56.25% calc(425% / 6), #0000, #1d1d1d 0.5deg 119.5deg, #0000 120deg),
+    conic-gradient(from 60deg at 56.25% calc(425% / 6), #0000, #1d1d1d 0.5deg 119.5deg, #0000 120deg) 20px calc(1.73 * 20px),
+    conic-gradient(from 180deg at 43.75% calc(425% / 6), #0000, #1d1d1d 0.5deg 119.5deg, #0000 120deg),
+    conic-gradient(from 180deg at 43.75% calc(425% / 6), #0000, #1d1d1d 0.5deg 119.5deg, #0000 120deg) 20px calc(1.73 * 20px),
+    conic-gradient(from -60deg at 50% calc(175% / 12), #0000, #1d1d1d 0.5deg 119.5deg, #0000 120deg) 20px 0,
+    conic-gradient(from -60deg at 50% calc(175% / 12), #0000, #1d1d1d 0.5deg 119.5deg, #0000 120deg) 0 calc(1.73 * 20px), 
+    #3c3c3c;
+  --mainbg-size: calc(2 * 20px) calc(3.46 * 20px);
+  --secondarybg-dark: 
+    repeating-conic-gradient(
+      from 30deg,
+      #0000 0 120deg,
+      #3c3c3c 0 180deg
+    )
+    calc(0.5 * 200px) calc(0.5 * 200px * 0.577),
+    repeating-conic-gradient(
+      from 30deg,
+      #1d1d1d 0 60deg,
+      #4e4f51 0 120deg,
+      #3c3c3c 0 180deg
+    );
+  --secondarybg-dark-size: 200px calc(200px * 0.577);
+
+  --secondarybg-light: 
+    conic-gradient(from -60deg at 50% calc(100% / 3), #d9d9d9 0 120deg, #0000 0),
+    conic-gradient(from 120deg at 50% calc(200% / 3), #d9d9d9 0 120deg, #0000 0),
+    conic-gradient(
+      from 60deg at calc(200% / 3),
+      #d9d9d9 60deg,
+      #ffffff 0 120deg,
+      #0000 0
+    ),
+    conic-gradient(from 180deg at calc(100% / 3), #b2b2b2 60deg, #d9d9d9 0 120deg, #0000 0),
+    linear-gradient(
+      90deg,
+      #b2b2b2 calc(100% / 6),
+      #ffffff 0 50%,
+      #b2b2b2 0 calc(500% / 6),
+      #ffffff 0
+    );
+  --secondarybg-light-size: calc(1.732 * 82px) 82px;
+
+  --secondarybg: var(--secondarybg-dark);
+  --secondarybg-size: var(--secondarybg-dark-size);
+}
+
