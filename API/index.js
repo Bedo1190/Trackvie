@@ -69,6 +69,70 @@ app.post('/save', async (req, res) => {
   }
 });
 
+// Get all saved shows for a specific user
+app.get('/users/:userId/savedShows', async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const savedShowsSnapshot = await db
+      .collection('Users')
+      .doc(userId)
+      .collection('savedShows')
+      .get();
+
+    const savedShows = [];
+    savedShowsSnapshot.forEach(doc => {
+      savedShows.push({ id: doc.id, ...doc.data() });
+    });
+
+    res.status(200).json(savedShows);
+  } catch (error) {
+    console.error('Error fetching saved shows:', error);
+    res.status(500).json({ error: 'Failed to fetch saved shows' });
+  }
+});
+
+// Add a saved show for a specific user
+// === POST: Save a show and auto-increment ID ===
+app.post('/users/:userId/savedShows', async (req, res) => {
+  const { userId } = req.params;
+  const { url } = req.body;
+
+  if (!url) {
+    return res.status(400).json({ error: 'Missing required field: url' });
+  }
+
+  try {
+    const userRef = db.collection('Users').doc(userId);
+
+    await db.runTransaction(async (t) => {
+      const userDoc = await t.get(userRef);
+      if (!userDoc.exists) {
+        throw new Error('User does not exist');
+      }
+
+      let count = userDoc.data().savedShowCount || 0;
+      count += 1;
+
+      const showId = `id-${count}`;
+      const savedShowRef = userRef.collection('savedShows').doc(showId);
+
+      t.set(savedShowRef, {
+        url: url,
+        //timestamp: new Date().toISOString() --> add anything you want to send 
+      });
+
+      t.update(userRef, { savedShowCount: count });
+    });
+
+    res.status(200).json({ message: 'Show saved successfully!' });
+  } catch (error) {
+    console.error('Error saving show:', error);
+    res.status(500).json({ error: 'Failed to save show' });
+  }
+});
+
+
+
 // === Root test endpoint ===
 app.get('/', (req, res) => {
   res.send('API is running');

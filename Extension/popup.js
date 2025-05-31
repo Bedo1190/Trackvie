@@ -56,23 +56,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  saveBtn.addEventListener("click", () => {
+ saveBtn.addEventListener("click", () => {
   if (isUrlFound) {
     chrome.runtime.sendMessage({ type: "get-url" }, async (response) => {
       if (response && response.url) {
         try {
-          const res = await fetch('http://localhost:4000/save', {
+          const res = await fetch('http://localhost:4000/users/id-2/savedShows', { // Replace with logged-in user ID
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              collection: 'TestUrls',
-              docId: generateDocId(), 
-              data: {
-                url: response.url,
-                timestamp: new Date().toISOString()
-              }
+              url: response.url
             })
           });
 
@@ -101,6 +96,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 1500);
   }
 });
+
+
 
 
   autoSaveToggle.addEventListener("change", () => {
