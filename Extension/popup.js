@@ -57,22 +57,51 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   saveBtn.addEventListener("click", () => {
-    if (isUrlFound) {
-      notification.textContent = "Show saved!";
-      notification.classList.add("show");
+  if (isUrlFound) {
+    chrome.runtime.sendMessage({ type: "get-url" }, async (response) => {
+      if (response && response.url) {
+        try {
+          const res = await fetch('http://localhost:4000/save', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              collection: 'TestUrls',
+              docId: generateDocId(), 
+              data: {
+                url: response.url,
+                timestamp: new Date().toISOString()
+              }
+            })
+          });
 
-      setTimeout(() => {
-        notification.classList.remove("show");
-      }, 1500);
-    } else {
-      notification.textContent = "Couldn't save show";
-      notification.classList.add("show");
+          if (res.ok) {
+            notification.textContent = "Show saved!";
+          } else {
+            notification.textContent = "Failed to save.";
+          }
+        } catch (error) {
+          console.error("Error saving:", error);
+          notification.textContent = "Error while saving.";
+        }
 
-      setTimeout(() => {
-        notification.classList.remove("show");
-      }, 1500);
-    }
-  });
+        notification.classList.add("show");
+        setTimeout(() => {
+          notification.classList.remove("show");
+        }, 1500);
+      }
+    });
+  } else {
+    notification.textContent = "Couldn't save show";
+    notification.classList.add("show");
+
+    setTimeout(() => {
+      notification.classList.remove("show");
+    }, 1500);
+  }
+});
+
 
   autoSaveToggle.addEventListener("change", () => {
     autosaveTxt.classList.add("show");
@@ -91,3 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+function generateDocId() {
+  return `doc-${Date.now()}`;
+}
+
