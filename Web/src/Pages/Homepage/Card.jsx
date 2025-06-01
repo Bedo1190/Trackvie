@@ -1,29 +1,65 @@
 import styled from "styled-components";
-function Card() {
-    
-    return(
-        <StyledWrapper>
-            <div className="top">x</div>
-            <div className="bottom">y</div>
 
-        </StyledWrapper>
-    );
+function Card({ url }) {
+  const openInNewTab = () => {
+    window.open(url, "_blank");
+  };
+  const getDisplayName = (fullUrl) => {
+    try {
+      const hostname = new URL(fullUrl).hostname;
+      return hostname.replace("www.", "").split(".")[0]; // e.g., "github"
+    } catch {
+      return "unknown";
+    }
+  };
+
+  return (
+    <StyledWrapper onClick={openInNewTab}>
+      <div className="top">Saved</div>
+      <div className="bottom">
+        <span className="icon">
+          <i className="fa-solid fa-circle-play"></i>
+        </span>
+        <span className="showName">{getDisplayName(url)}</span>
+      </div>
+    </StyledWrapper>
+  );
 }
+
 const StyledWrapper = styled.div`
-  width:100%;
-  height:100%;
-  background: var(--secondarybg-dark);
-  background-size: var(--secondarybg-dark-size);
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  div{
-    font-size:40px;
+  width: 220px;
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.3s;
+
+  &:hover {
+    background-color: #fe4a49;
+  }
+
+  .top, .bottom {
+    font-size: 18px;
     margin: 3px;
-    width:100%;
-    border:solid thin #fe4a49;
-    flex-grow:1;
+    width: 100%;
+    border: solid thin #fe4a49;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+    padding: 5px;
+    overflow:hidden;
+  }
+
+  .icon {
+    margin-right: 8px;
+    color: #fe4a49;
   }
 `;
+
+
 export default Card;

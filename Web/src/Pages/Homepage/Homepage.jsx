@@ -1,6 +1,28 @@
 import styled from "styled-components";
+import { useEffect, useState } from "react";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "/Users/bedrishwayze/Desktop/Freevie/trackvie/Web/src/firebase.js"; // adjust path if needed
 import Card from "./Card";
+
 function Homepage() {
+  const [shows, setShows] = useState([]);
+
+  useEffect(() => {
+      const unsub = onSnapshot(
+        collection(db, "Users/id-2/savedShows"),
+        (snapshot) => {
+          const updatedShows = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+          setShows(updatedShows);
+        }
+      );
+
+      return () => unsub(); // Cleanup on unmount
+    }, []);
+
+
   return (
     <StyledWrapper>
       <div id="a">
@@ -25,27 +47,26 @@ function Homepage() {
         </div>
         <div className="inside">z</div>
       </div>
-      <div id="b">b</div>
-      <div id="c">c</div>
-      <div id="d">d</div>
-      <div id="e">e</div>
-      <div id="f"><Card/></div>
-      <div id="g">g</div>
-      <div id="h">h</div>
+      <div id="b">
+        {shows.map((show, index) => (
+          <Card key={index} url={show.url} />
+        ))}
+      </div>
+
+      
     </StyledWrapper>
   );
 }
 
 const StyledWrapper = styled.div`
-  height: 100vh;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  grid-template-rows: repeat(5, 150px);
+  grid-template-rows: repeat(1);
   grid-gap: 20px 20px;
-  padding-top: 20px;
-
   background: var(--mainbg);
   background-size: var(--mainbg-size);
+  min-height: 100vh;
+
 
   div {
     background-color: #1d1d1d;
@@ -56,17 +77,31 @@ const StyledWrapper = styled.div`
     font-size: 40px;
   }
 
-  #a,
-  #b {
+  #a, #b {
     grid-column-start: 1;
     grid-column-end: 7;
   }
 
   #a {
+  position: sticky;
+  top: 0;
+  z-index: 999999;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+
+  #b {
+    grid-column: 1 / -1;
     display: flex;
+    flex-wrap: wrap;
+    padding: 20px;
+    gap: 70px;
+    align-content: flex-start;
     justify-content: space-between;
-    padding: 0 20px;
+    background: transparent;
   }
+
 
   .inside {
     border: solid #fe4a49;
@@ -77,15 +112,11 @@ const StyledWrapper = styled.div`
   #middle {
     flex-grow: 1;
     display: flex;
-    justify-content: flex-end;  /* Align input-wrapper to right */
+    justify-content: flex-end;
     align-items: center;
     margin-left: 20px;
     margin-right: 20px;
-    gap:20px;
-  }
-
-  form {
-    width: auto;
+    gap: 20px;
   }
 
   .input-wrapper {
@@ -95,7 +126,7 @@ const StyledWrapper = styled.div`
   }
 
   .input-wrapper:hover {
-    width: 320px; 
+    width: 320px;
   }
 
   input {
@@ -104,7 +135,7 @@ const StyledWrapper = styled.div`
     background-color: #3c3c3c;
     outline: none;
     color: white;
-    padding: 8px 40px 8px 12px; /* right padding for icon */
+    padding: 8px 40px 8px 12px;
     width: 100%;
     box-sizing: border-box;
     font-size: 18px;
@@ -120,7 +151,8 @@ const StyledWrapper = styled.div`
     pointer-events: none;
     font-size: 20px;
   }
-  .burger {
+
+   .burger {
     position: relative;
     width: 40px;
     height: 30px;
@@ -179,15 +211,18 @@ const StyledWrapper = styled.div`
     top: 28px;
     left: 5px;}
 
-  .little{
+  .little {
     border: solid #fe4a49;
     padding: 20px 20px;
     flex: 0 0 auto;
-    }
+  }
 
-  .little:hover{
-    background-color:#3c3c3c;
-    cursor:pointer;
+  .little:hover {
+    background-color: #3c3c3c;
+    cursor: pointer;
+  }
+  Card:hover{
+    background-color: #fe4a49;
   }
 `;
 
