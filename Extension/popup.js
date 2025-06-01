@@ -64,8 +64,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
  saveBtn.addEventListener("click", () => {
   if (isUrlFound) {
-    chrome.runtime.sendMessage({ type: "get-url" }, async (response) => {
-      if (response && response.url) {
+    chrome.runtime.sendMessage({ type: "get-url" }, (response) => {
+      const url = response?.url;
+      if (!url) return;
+
+      // Get video progress from background
+      chrome.runtime.sendMessage({ type: "get-video-progress" }, async (progressResponse) => {
+        const progress = progressResponse?.progress;
+
         const btnText = saveBtn.querySelector(".btn-text");
         const spinner = saveBtn.querySelector("i.fa-circle-notch");
 
@@ -73,14 +79,15 @@ document.addEventListener("DOMContentLoaded", () => {
         spinner.style.display = "inline-block";
 
         try {
-          const res = await fetch('http://localhost:4000/users/id-2/savedShows', {
-            method: 'POST',
+          const res = await fetch("http://localhost:4000/users/id-2/savedShows", {
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json'
+              "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              url: response.url
-            })
+              url: url,
+              videoProgress: progress // Send progress data to the API
+            }),
           });
 
           notification.textContent = res.ok ? "Show saved!" : "Failed to save.";
@@ -96,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
             notification.classList.remove("show");
           }, 1500);
         }
-      }
+      });
     });
   } else {
     notification.textContent = "Couldn't save show";
@@ -107,6 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 1500);
   }
 });
+
 
   autoSaveToggle.addEventListener("change", () => {
     autosaveTxt.classList.add("show");

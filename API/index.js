@@ -95,7 +95,8 @@ app.get('/users/:userId/savedShows', async (req, res) => {
 // === POST: Save a show and auto-increment ID ===
 app.post('/users/:userId/savedShows', async (req, res) => {
   const { userId } = req.params;
-  const { url } = req.body;
+  const { url, videoProgress } = req.body;
+
 
   if (!url) {
     return res.status(400).json({ error: 'Missing required field: url' });
@@ -118,7 +119,8 @@ app.post('/users/:userId/savedShows', async (req, res) => {
 
       t.set(savedShowRef, {
         url: url,
-        //timestamp: new Date().toISOString() --> add anything you want to send 
+        videoProgress: videoProgress || null, // optional
+        // timestamp: new Date().toISOString(),
       });
 
       t.update(userRef, { savedShowCount: count });

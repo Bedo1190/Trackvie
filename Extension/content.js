@@ -9,10 +9,28 @@ function getVideoProgress() {
   return null;
 }
 
-// Send video progress to background or popup
-setInterval(() => {
-  const progress = getVideoProgress();
-  if (progress) {
-    chrome.runtime.sendMessage({ type: "video-progress", progress });
+function startProgressInterval(video) {
+  setInterval(() => {
+    if (video) {
+      const progress = {
+        currentTime: video.currentTime,
+        duration: video.duration,
+      };
+      //console.log("[content.js] Sending progress:", progress);
+      chrome.runtime.sendMessage({ type: "video-progress", progress });
+    }
+  }, 500);
+}
+
+function waitForVideo() {
+  const video = document.querySelector("video");
+  if (video) {
+    //console.log("[content.js] Video found, starting progress tracking.");
+    startProgressInterval(video);
+  } else {
+    //console.log("[content.js] Waiting for video element...");
+    setTimeout(waitForVideo, 500);
   }
-}, 5000); // every 5 seconds
+}
+
+waitForVideo(); // Initial call
