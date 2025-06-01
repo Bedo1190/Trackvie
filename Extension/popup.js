@@ -66,8 +66,14 @@ document.addEventListener("DOMContentLoaded", () => {
   if (isUrlFound) {
     chrome.runtime.sendMessage({ type: "get-url" }, async (response) => {
       if (response && response.url) {
+        const btnText = saveBtn.querySelector(".btn-text");
+        const spinner = saveBtn.querySelector("i.fa-circle-notch");
+
+        btnText.style.display = "none";
+        spinner.style.display = "inline-block";
+
         try {
-          const res = await fetch('http://localhost:4000/users/id-2/savedShows', { // Replace with logged-in user ID
+          const res = await fetch('http://localhost:4000/users/id-2/savedShows', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -77,20 +83,19 @@ document.addEventListener("DOMContentLoaded", () => {
             })
           });
 
-          if (res.ok) {
-            notification.textContent = "Show saved!";
-          } else {
-            notification.textContent = "Failed to save.";
-          }
+          notification.textContent = res.ok ? "Show saved!" : "Failed to save.";
         } catch (error) {
           console.error("Error saving:", error);
           notification.textContent = "Error while saving.";
-        }
+        } finally {
+          btnText.style.display = "inline";
+          spinner.style.display = "none";
 
-        notification.classList.add("show");
-        setTimeout(() => {
-          notification.classList.remove("show");
-        }, 1500);
+          notification.classList.add("show");
+          setTimeout(() => {
+            notification.classList.remove("show");
+          }, 1500);
+        }
       }
     });
   } else {
@@ -102,9 +107,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 1500);
   }
 });
-
-
-
 
   autoSaveToggle.addEventListener("change", () => {
     autosaveTxt.classList.add("show");
