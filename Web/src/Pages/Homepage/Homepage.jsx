@@ -62,6 +62,32 @@ function Homepage() {
     };
   }, [shows, visibleCount]);
 
+  useEffect(() => {
+  let lastScrollTop = 0;
+
+  const handleScroll = () => {
+    const scrollTop = window.scrollY;
+    const header = document.getElementById("a");
+
+    if (!header) return;
+
+    if (scrollTop > lastScrollTop) {
+      // Scrolling down
+      header.classList.add("hidden");
+    } else {
+      // Scrolling up
+      header.classList.remove("hidden");
+    }
+
+    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // avoid negative scroll
+  };
+
+  window.addEventListener("scroll", handleScroll);
+
+  return () => window.removeEventListener("scroll", handleScroll);
+}, []);
+
+
   return (
     <StyledWrapper>
       <div id="a">
@@ -120,10 +146,17 @@ const StyledWrapper = styled.div`
     padding: 6px 16px 6px 0px;
     background-color: #1d1d1d;
     height: 60px;
-     @media screen and (max-width: 540px) {
+    @media screen and (max-width: 540px) {
       padding: 6px 0px 6px 0px;
     }
-  }
+    transition: top 0.3s ease;
+}
+
+    #a.hidden {
+      top: -100px; 
+    }
+
+  
 
   .inside {
     border: 1px solid #fe4a49;
