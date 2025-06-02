@@ -65,25 +65,26 @@ function Homepage() {
   return (
     <StyledWrapper>
       <div id="a">
-        <div className="inside">
+        <div className="inside" id="middle">
           <label className="burger" htmlFor="burger">
             <input type="checkbox" id="burger" />
             <span />
             <span />
             <span />
           </label>
+          <div className="right-section">
+            <form action="">
+              <div className="input-wrapper">
+                <input type="text" name="searchbar" id="searchbar" />
+                <i className="fa-solid fa-magnifying-glass"></i>
+              </div>
+            </form>
+            <div className="little">k</div>
+            <div className="little">l</div>
+            <div className="little">m</div>
+          </div>
         </div>
-        <div className="inside" id="middle">
-          <form action="">
-            <div className="input-wrapper">
-              <input type="text" name="searchbar" id="searchbar" />
-              <i className="fa-solid fa-magnifying-glass"></i>
-            </div>
-          </form>
-          <div className="little">k</div>
-          <div className="little">l</div>
-          <div className="little">m</div>
-        </div>
+
         <div className="inside">z</div>
       </div>
 
@@ -116,9 +117,12 @@ const StyledWrapper = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 6px 16px;
+    padding: 6px 16px 6px 0px;
     background-color: #1d1d1d;
     height: 60px;
+     @media screen and (max-width: 540px) {
+      padding: 6px 0px 6px 0px;
+    }
   }
 
   .inside {
@@ -138,11 +142,16 @@ const StyledWrapper = styled.div`
   #middle {
     flex-grow: 1;
     display: flex;
-    justify-content: flex-end;
     align-items: center;
     margin: 0 16px;
     gap: 12px;
   }
+    .right-section {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
   .input-wrapper {
     position: relative;
@@ -183,7 +192,10 @@ const StyledWrapper = styled.div`
     border-radius: 6px;
     background-color: #2a2a2a;
     color: #fe4a49;
-  }
+    @media screen and (max-width: 540px) {
+        display:none;
+      }
+}
 
   .little:hover {
     background-color: #3c3c3c;
@@ -196,6 +208,7 @@ const StyledWrapper = styled.div`
   height: 22px;
   cursor: pointer;
   display: block;
+  margin-left:10px;
 }
 
 .burger input {
