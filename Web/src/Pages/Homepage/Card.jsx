@@ -53,6 +53,7 @@ const StyledWrapper = styled.div`
     text-align: center;
     padding: 5px;
     overflow:hidden;
+    background-color:#1d1d1d;
   }
 
   .icon {

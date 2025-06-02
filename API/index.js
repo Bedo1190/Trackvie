@@ -120,7 +120,7 @@ app.post('/users/:userId/savedShows', async (req, res) => {
       t.set(savedShowRef, {
         url: url,
         videoProgress: videoProgress || null, // optional
-        // timestamp: new Date().toISOString(),
+        timestamp: admin.firestore.Timestamp.now(),
       });
 
       t.update(userRef, { savedShowCount: count });

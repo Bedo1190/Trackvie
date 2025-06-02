@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useEffect } from 'react';
+
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -32,6 +34,15 @@ const toggleTheme = () => {
       setTimeout(() => setShowNotification(false), 3000); 
     }
   };
+  useEffect(() => {
+  const originalStyle = window.getComputedStyle(document.body).overflow;
+  document.body.style.overflow = 'hidden'; // Disable scroll
+
+  return () => {
+    document.body.style.overflow = originalStyle; // Re-enable scroll on cleanup
+  };
+}, []);
+
 
   return (
     <StyledWrapper>
@@ -95,6 +106,7 @@ const StyledWrapper = styled.div`
   height: 100%;
   background: var(--secondarybg);
   background-size: var(--secondarybg-size);
+  overflow:hidden;
 
   .theme-checkbox {
   --toggle-size: 10px;
