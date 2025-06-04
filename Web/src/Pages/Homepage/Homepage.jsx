@@ -146,7 +146,7 @@ const StyledWrapper = styled.div`
     padding: 6px 16px 6px 0px;
     background-color: #1d1d1d;
     height: 60px;
-    @media screen and (max-width: 540px) {
+    @media screen and (max-width: 550px) {
       padding: 6px 0px 6px 0px;
     }
     transition: top 0.3s ease;
@@ -167,7 +167,7 @@ const StyledWrapper = styled.div`
     border-radius: 8px;
     background-color: #2a2a2a;
     color: #fe4a49;
-     @media screen and (max-width: 540px) {
+     @media screen and (max-width: 550px) {
       display:none;
     }
   }
@@ -225,7 +225,7 @@ const StyledWrapper = styled.div`
     border-radius: 6px;
     background-color: #2a2a2a;
     color: #fe4a49;
-    @media screen and (max-width: 540px) {
+    @media screen and (max-width: 550px) {
         display:none;
       }
 }
@@ -295,7 +295,7 @@ const StyledWrapper = styled.div`
     justify-content: space-between;
     background: transparent;
 
-    @media screen and (max-width: 540px) {
+    @media screen and (max-width: 550px) {
       justify-content: center;
     }
   }
