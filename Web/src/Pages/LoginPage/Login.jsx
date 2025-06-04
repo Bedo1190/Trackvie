@@ -249,13 +249,15 @@ const StyledWrapper = styled.div`
     padding: 8px;
     width: 100%;
     box-sizing: border-box;
-    transition-duration: 0.3s;
+    transition: 0.3s ease;
     font-size: 18px;
   }
 
   input:hover,
   input:focus {
     background-color: #4e4f51;
+    transform: scale(1.1);
+
   }
 
   #submitBtn {
@@ -264,13 +266,14 @@ const StyledWrapper = styled.div`
     border: none;
     padding: 8px 16px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: 0.3s ease;
     margin-top: 15px;
     border-radius: 10px;
   }
 
   #submitBtn:hover {
     background-color: #c93535;
+    transform: scale(1.1);
   }
 
   #registerBtn {
@@ -280,7 +283,7 @@ const StyledWrapper = styled.div`
   font-size: 20px;
   position: relative;
   cursor: pointer;
-  transition: font-size 0.3s ease, color 0.3s ease;
+  transition: transform 0.3s ease, color 0.3s ease;
 }
 
 #registerBtn::after {
@@ -296,7 +299,7 @@ const StyledWrapper = styled.div`
 
 #registerBtn:hover {
   color: #FE4A49;
-  font-size: 25px; 
+  transform: scale(1.4)
 }
 
 #registerBtn:hover::after {

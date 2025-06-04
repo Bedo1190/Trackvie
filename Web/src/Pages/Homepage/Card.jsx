@@ -34,10 +34,12 @@ const StyledWrapper = styled.div`
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  transition: background 0.3s;
+  transition:  0.3s;
 
   &:hover {
     background-color: #fe4a49;
+    transform: scale(1.1);
+
   }
 
   .top, .bottom {
