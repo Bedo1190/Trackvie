@@ -71,6 +71,9 @@ document.addEventListener("DOMContentLoaded", () => {
       // Get video progress from background
       chrome.runtime.sendMessage({ type: "get-video-progress" }, async (progressResponse) => {
         const progress = progressResponse?.progress;
+        //back when i was trying to set the video's time on the new tabs... still works though (for youtube, twitter etc...)!
+        //const separator = url.includes('?') ? '&' : '?';
+        //const modifiedUrl = `${url}${separator}t=${Math.floor(progress.currentTime)}s`;
 
         const btnText = saveBtn.querySelector(".btn-text");
         const spinner = saveBtn.querySelector("i.fa-circle-notch");
@@ -86,7 +89,8 @@ document.addEventListener("DOMContentLoaded", () => {
             },
             body: JSON.stringify({
               url: url,
-              videoProgress: progress // Send progress data to the API
+              videoProgress: progress.currentTime, // Send progress data to the API
+              //modifiedUrl: modifiedUrl
             }),
           });
 

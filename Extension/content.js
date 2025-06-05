@@ -3,7 +3,6 @@ function getVideoProgress() {
   if (video) {
     return {
       currentTime: video.currentTime,
-      duration: video.duration,
     };
   }
   return null;
@@ -14,7 +13,6 @@ function startProgressInterval(video) {
     if (video) {
       const progress = {
         currentTime: video.currentTime,
-        duration: video.duration,
       };
       //console.log("[content.js] Sending progress:", progress);
       chrome.runtime.sendMessage({ type: "video-progress", progress });
