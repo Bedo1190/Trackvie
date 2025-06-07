@@ -35,12 +35,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // Ask background for the current tab URL
-  chrome.runtime.sendMessage({ type: "get-url" }, (response) => {
-    if (response && response.url) {
-      showName.textContent = response.url;
+  chrome.runtime.sendMessage({ type: "get-page-info" }, (response) => {
+    if (response && response.title) {
+      showName.textContent = response.title;
       isUrlFound = true;
     } else {
-      showName.textContent = "URL not found";
+      showName.textContent = "Title not found";
       isUrlFound = false;
     }
   });
@@ -64,8 +64,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
  saveBtn.addEventListener("click", () => {
   if (isUrlFound) {
-    chrome.runtime.sendMessage({ type: "get-url" }, (response) => {
+    chrome.runtime.sendMessage({ type: "get-page-info" }, (response) => {
       const url = response?.url;
+      const title = response?.title;
       if (!url) return;
 
       // Get video progress from background
@@ -91,6 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
               url: url,
               videoProgress: progress.currentTime, // Send progress data to the API
               //modifiedUrl: modifiedUrl
+              title: title,
             }),
           });
 

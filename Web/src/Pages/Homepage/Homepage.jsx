@@ -117,7 +117,7 @@ function Homepage() {
       <div id="b">
         {shows.slice(0, visibleCount).map((show, index) => (
           <AnimatedCard key={show.id || index} delay={index * 0.1}>
-            <Card url={show.url} />
+            <Card url={show.url} title={show.title}/>
           </AnimatedCard>
         ))}
         <div

@@ -1,3 +1,10 @@
+// Send page title immediately on load
+// Send the page title every 500ms
+setInterval(() => {
+  chrome.runtime.sendMessage({ type: "page-title", title: document.title });
+}, 1000);
+
+
 function getVideoProgress() {
   const video = document.querySelector("video");
   if (video) {
@@ -14,7 +21,6 @@ function startProgressInterval(video) {
       const progress = {
         currentTime: video.currentTime,
       };
-      //console.log("[content.js] Sending progress:", progress);
       chrome.runtime.sendMessage({ type: "video-progress", progress });
     }
   }, 500);
@@ -23,12 +29,10 @@ function startProgressInterval(video) {
 function waitForVideo() {
   const video = document.querySelector("video");
   if (video) {
-    //console.log("[content.js] Video found, starting progress tracking.");
     startProgressInterval(video);
   } else {
-    //console.log("[content.js] Waiting for video element...");
     setTimeout(waitForVideo, 500);
   }
 }
 
-waitForVideo(); // Initial call
+waitForVideo();

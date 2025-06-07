@@ -95,7 +95,7 @@ app.get('/users/:userId/savedShows', async (req, res) => {
 // === POST: Save a show and auto-increment ID ===
 app.post('/users/:userId/savedShows', async (req, res) => {
   const { userId } = req.params;
-  const { url, videoProgress, modifiedUrl } = req.body;
+  const { url, videoProgress, modifiedUrl,title } = req.body;
 
 
   if (!url) {
@@ -122,7 +122,8 @@ app.post('/users/:userId/savedShows', async (req, res) => {
         videoProgress: videoProgress || null, // optional
         timestamp: admin.firestore.Timestamp.now(),
         //back when i was trying to set the video's time... still works though (for youtube, twitter etc...)!
-        //modifiedUrl: modifiedUrl,  
+        //modifiedUrl: modifiedUrl,
+        title: title || "untitled",  
       });
 
       t.update(userRef, { savedShowCount: count });

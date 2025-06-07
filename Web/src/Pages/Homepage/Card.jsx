@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-function Card({ url }) {
+function Card({ url, title }) {
   const openInNewTab = () => {
     window.open(url, "_blank");
   };
@@ -69,7 +69,7 @@ function Card({ url }) {
 
         {/* Sliding Info */}
         <div className="sliding-info">
-          <p>This is additional info shown on hover.</p>
+          <p>{title}</p>
         </div>
       </div>
     </StyledWrapper>
@@ -166,6 +166,7 @@ const StyledWrapper = styled.div`
     width: 100%;
     box-sizing: border-box;
     padding: 0 10px;
+    text-align: center;
   }
 
   .wrapper:hover .sliding-info {
