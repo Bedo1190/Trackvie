@@ -27,7 +27,7 @@ function Homepage() {
   const [shows, setShows] = useState([]);
   const [visibleCount, setVisibleCount] = useState(10);
   const loaderRef = useRef(null);
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -40,8 +40,9 @@ function Homepage() {
   };
 
   useEffect(() => {
+    if (!user) return console.log("not logged in");
     const unsub = onSnapshot(
-      collection(db, "Users/id-2/savedShows"),
+      collection(db, `Users/${user.uid}/savedShows`),
       (snapshot) => {
         const updatedShows = snapshot.docs.map((doc) => ({
           id: doc.id,
@@ -52,7 +53,7 @@ function Homepage() {
     );
 
     return () => unsub();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (visibleCount >= shows.length) return;
