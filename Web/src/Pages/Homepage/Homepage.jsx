@@ -26,6 +26,7 @@ const AnimatedCard = styled.div`
 function Homepage() {
   const [shows, setShows] = useState([]);
   const [visibleCount, setVisibleCount] = useState(10);
+  const [searchTerm, setSearchTerm] = useState('');
   const loaderRef = useRef(null);
   const { logout, user } = useAuth();
   const navigate = useNavigate();
@@ -77,30 +78,30 @@ function Homepage() {
   }, [shows, visibleCount]);
 
   useEffect(() => {
-  let lastScrollTop = 0;
+    let lastScrollTop = 0;
 
-  const handleScroll = () => {
-    const scrollTop = window.scrollY;
-    const header = document.getElementById("a");
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const header = document.getElementById("a");
 
-    if (!header) return;
+      if (!header) return;
 
-    if (scrollTop > lastScrollTop) {
-      // Scrolling down
-      header.classList.add("hidden");
-    } else {
-      // Scrolling up
-      header.classList.remove("hidden");
-    }
+      if (scrollTop > lastScrollTop) {
+        header.classList.add("hidden");
+      } else {
+        header.classList.remove("hidden");
+      }
 
-    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // avoid negative scroll
-  };
+      lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+    };
 
-  window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-  return () => window.removeEventListener("scroll", handleScroll);
-}, []);
-
+  const filteredShows = shows.filter(show =>
+    show.title?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <StyledWrapper>
@@ -115,25 +116,40 @@ function Homepage() {
           <div className="right-section">
             <form action="">
               <div className="input-wrapper">
-                <input type="text" name="searchbar" id="searchbar" />
+                <input
+                  type="text"
+                  name="searchbar"
+                  id="searchbar"
+                  placeholder="Search by title..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
                 <i className="fa-solid fa-magnifying-glass"></i>
               </div>
             </form>
             <div className="little">k</div>
             <div className="little">l</div>
             <div className="little">m</div>
+            <div className="inside" id="logout" onClick={handleLogout}>
+              <i className="fa-solid fa-right-from-bracket"></i>
+            </div>
           </div>
         </div>
-
-        <div className="inside" id="logout" onClick={handleLogout}><i class="fa-solid fa-right-from-bracket"></i></div>
       </div>
 
       <div id="b">
-        {shows.slice(0, visibleCount).map((show, index) => (
-          <AnimatedCard key={show.id || index} delay={index * 0.1}>
-            <Card url={show.url} title={show.title}/>
-          </AnimatedCard>
-        ))}
+       {filteredShows.length === 0 ? (
+          <p style={{ color: "#fe4a49", fontSize: "5em", textAlign: "center", width: "100%", fontFamily:"League Spartan" }}>
+            No results found. <i class="fa-regular fa-face-sad-cry"></i>
+          </p>
+        ) : (
+          filteredShows.slice(0, visibleCount).map((show, index) => (
+            <AnimatedCard key={show.id || index} delay={index * 0.1}>
+              <Card url={show.url} title={show.title} />
+            </AnimatedCard>
+          ))
+        )}
+
         <div
           ref={loaderRef}
           style={{ height: "1px", marginTop: "20px", background: "transparent" }}
@@ -157,20 +173,18 @@ const StyledWrapper = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 6px 16px 6px 0px;
+    padding: 6px 6px 6px 0px;
     background-color: #1d1d1d;
     height: 60px;
     @media screen and (max-width: 550px) {
       padding: 6px 0px 6px 0px;
     }
     transition: top 0.3s ease;
-}
+  }
 
-    #a.hidden {
-      top: -100px; 
-    }
-
-  
+  #a.hidden {
+    top: -100px; 
+  }
 
   .inside {
     border: 1px solid #fe4a49;
@@ -181,9 +195,6 @@ const StyledWrapper = styled.div`
     border-radius: 8px;
     background-color: #2a2a2a;
     color: #fe4a49;
-     @media screen and (max-width: 550px) {
-      display:none;
-    }
   }
 
   #middle {
@@ -193,21 +204,22 @@ const StyledWrapper = styled.div`
     margin: 0 16px;
     gap: 12px;
   }
-    .right-section {
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+
+  .right-section {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
 
   .input-wrapper {
     position: relative;
-    width: 20vh;
+    width: 23vh;
     transition: width 0.3s ease;
   }
 
   .input-wrapper:hover {
-    width: 30vh;
+    width: 32vh;
   }
 
   input {
@@ -240,9 +252,9 @@ const StyledWrapper = styled.div`
     background-color: #2a2a2a;
     color: #fe4a49;
     @media screen and (max-width: 550px) {
-        display:none;
-      }
-}
+      display: none;
+    }
+  }
 
   .little:hover {
     background-color: #3c3c3c;
@@ -250,55 +262,53 @@ const StyledWrapper = styled.div`
   }
 
   .burger {
-  position: relative;
-  width: 30px;
-  height: 22px;
-  cursor: pointer;
-  display: block;
-  margin-left:10px;
-}
+    position: relative;
+    width: 30px;
+    height: 22px;
+    cursor: pointer;
+    display: block;
+    margin-left: 10px;
+  }
 
-.burger input {
-  display: none;
-}
+  .burger input {
+    display: none;
+  }
 
-.burger span {
-  display: block;
-  position: absolute;
-  height: 3px;
-  width: 100%;
-  background: #fe4a49;
-  border-radius: 9px;
-  transition: 0.25s ease-in-out;
-}
+  .burger span {
+    display: block;
+    position: absolute;
+    height: 3px;
+    width: 100%;
+    background: #fe4a49;
+    border-radius: 9px;
+    transition: 0.25s ease-in-out;
+  }
 
-.burger span:nth-of-type(1) {
-  top: 0;
-}
+  .burger span:nth-of-type(1) {
+    top: 0;
+  }
 
-.burger span:nth-of-type(2) {
-  top: 9px;
-}
+  .burger span:nth-of-type(2) {
+    top: 9px;
+  }
 
-.burger span:nth-of-type(3) {
-  top: 18px;
-}
+  .burger span:nth-of-type(3) {
+    top: 18px;
+  }
 
-/* Animation to X */
-.burger input:checked ~ span:nth-of-type(1) {
-  transform: rotate(45deg);
-  top: 9px;
-}
+  .burger input:checked ~ span:nth-of-type(1) {
+    transform: rotate(45deg);
+    top: 9px;
+  }
 
-.burger input:checked ~ span:nth-of-type(2) {
-  opacity: 0;
-}
+  .burger input:checked ~ span:nth-of-type(2) {
+    opacity: 0;
+  }
 
-.burger input:checked ~ span:nth-of-type(3) {
-  transform: rotate(-45deg);
-  top: 9px;
-}
-
+  .burger input:checked ~ span:nth-of-type(3) {
+    transform: rotate(-45deg);
+    top: 9px;
+  }
 
   #b {
     display: flex;
@@ -308,7 +318,7 @@ const StyledWrapper = styled.div`
     align-content: flex-start;
     justify-content: space-between;
     background: transparent;
-    margin-bottom:5em;
+    margin-bottom: 5em;
     @media screen and (max-width: 550px) {
       justify-content: center;
     }
@@ -317,6 +327,7 @@ const StyledWrapper = styled.div`
   Card:hover {
     background-color: #fe4a49;
   }
+
   #logout:hover {
     background-color: #3c3c3c;
     transform: scale(1.1);
