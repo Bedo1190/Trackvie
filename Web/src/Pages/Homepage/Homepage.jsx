@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "/Users/bedrishwayze/Desktop/Freevie/trackvie/Web/src/firebase.js";
 import Card from "./Card";
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../Context/AuthContext';
 
 const fadeInUp = keyframes`
   from {
@@ -25,6 +27,17 @@ function Homepage() {
   const [shows, setShows] = useState([]);
   const [visibleCount, setVisibleCount] = useState(10);
   const loaderRef = useRef(null);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login'); 
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   useEffect(() => {
     const unsub = onSnapshot(
@@ -111,7 +124,7 @@ function Homepage() {
           </div>
         </div>
 
-        <div className="inside">z</div>
+        <div className="inside" id="logout" onClick={handleLogout}><i class="fa-solid fa-right-from-bracket"></i></div>
       </div>
 
       <div id="b">
@@ -294,7 +307,7 @@ const StyledWrapper = styled.div`
     align-content: flex-start;
     justify-content: space-between;
     background: transparent;
-
+    margin-bottom:5em;
     @media screen and (max-width: 550px) {
       justify-content: center;
     }
@@ -302,6 +315,13 @@ const StyledWrapper = styled.div`
 
   Card:hover {
     background-color: #fe4a49;
+  }
+  #logout:hover {
+    background-color: #3c3c3c;
+    transform: scale(1.1);
+    transition: 0.3s ease;
+    cursor: pointer;
+    type: button;
   }
 `;
 

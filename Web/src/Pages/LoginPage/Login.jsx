@@ -1,63 +1,68 @@
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-import { useEffect } from 'react';
-
+import { useState, useEffect } from 'react';
+import { useAuth } from '../../Context/AuthContext';
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { login, user } = useAuth(); // grab user here to watch auth state
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showNotification, setShowNotification] = useState(false);
   const [isLight, setIsLight] = useState(false);
 
-const toggleTheme = () => {
-  setIsLight((prev) => !prev);
+  // Log user on change to debug
+  useEffect(() => {
+    console.log("Current authenticated user:", user);
+    if (user) {
+      navigate('/main'); // Redirect automatically if user is logged in
+    }
+  }, [user, navigate]);
 
-  const root = document.documentElement;
-  if (!isLight) {
-    root.style.setProperty('--secondarybg', 'var(--secondarybg-light)');
-    root.style.setProperty('--secondarybg-size', 'var(--secondarybg-light-size)');
-  } else {
-    root.style.setProperty('--secondarybg', 'var(--secondarybg-dark)');
-    root.style.setProperty('--secondarybg-size', 'var(--secondarybg-dark-size)');
-  }
-};
-
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (username === 'askus' && password === 'nagiskus') {
-      navigate('/main');
+  const toggleTheme = () => {
+    setIsLight((prev) => !prev);
+    const root = document.documentElement;
+    if (!isLight) {
+      root.style.setProperty('--secondarybg', 'var(--secondarybg-light)');
+      root.style.setProperty('--secondarybg-size', 'var(--secondarybg-light-size)');
     } else {
-      setShowNotification(true);
-      setTimeout(() => setShowNotification(false), 3000); 
+      root.style.setProperty('--secondarybg', 'var(--secondarybg-dark)');
+      root.style.setProperty('--secondarybg-size', 'var(--secondarybg-dark-size)');
     }
   };
-  useEffect(() => {
-  const originalStyle = window.getComputedStyle(document.body).overflow;
-  document.body.style.overflow = 'hidden'; // Disable scroll
 
-  return () => {
-    document.body.style.overflow = originalStyle; // Re-enable scroll on cleanup
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      await login(username, password); // Firebase login
+      // No need to navigate here because useEffect on user will handle it
+    } catch (err) {
+      console.error("Login failed:", err.message);
+      setShowNotification(true);
+      setTimeout(() => setShowNotification(false), 3000);
+    }
   };
-}, []);
 
+  useEffect(() => {
+    const originalStyle = window.getComputedStyle(document.body).overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalStyle;
+    };
+  }, []);
 
   return (
     <StyledWrapper>
-        <input
-  type="checkbox"
-  className="theme-checkbox"
-  onChange={toggleTheme}
-  checked={isLight}
-/>
-
-
-      <h3 style={{color:'#FE4A49',fontSize:'50px',marginBottom:'20px', marginTop:'10px'}}>TrackVie</h3>
+      <input
+        type="checkbox"
+        className="theme-checkbox"
+        onChange={toggleTheme}
+        checked={isLight}
+      />
+      <h3 style={{ color: '#FE4A49', fontSize: '50px', marginBottom: '20px', marginTop: '10px' }}>TrackVie</h3>
       <div className="animated-border">
         <div id='container'>
-          <h2 id='login' style={{fontWeight:'bold'}}>Login</h2>
+          <h2 id='login' style={{ fontWeight: 'bold' }}>Login</h2>
           <form onSubmit={handleLogin} id='form'>
             <input
               id='username'
@@ -91,8 +96,6 @@ const toggleTheme = () => {
   );
 }
 
-
-
 const StyledWrapper = styled.div`
   font-family: 'League Spartan', sans-serif;
 
@@ -109,53 +112,49 @@ const StyledWrapper = styled.div`
   overflow:hidden;
 
   .theme-checkbox {
-  --toggle-size: 10px;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  width: 6.25em;
-  height: 3.125em;
-  background: linear-gradient(to right, #efefef 50%, #2a2a2a 50%) no-repeat;
-  background-size: 205%;
-  background-position: 0;
-  transition: 0.4s;
-  border-radius: 99em;
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  cursor: pointer;
-  font-size: var(--toggle-size);
-  z-index: 999;
-  border:none;
-}
+    --toggle-size: 10px;
+    appearance: none;
+    width: 6.25em;
+    height: 3.125em;
+    background: linear-gradient(to right, #efefef 50%, #2a2a2a 50%) no-repeat;
+    background-size: 205%;
+    background-position: 0;
+    transition: 0.4s;
+    border-radius: 99em;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+    font-size: var(--toggle-size);
+    z-index: 999;
+    border:none;
+  }
 
-.theme-checkbox::before {
-  content: "";
-  width: 2.25em;
-  height: 2.25em;
-  position: absolute;
-  top: 0.438em;
-  left: 0.438em;
-  background: linear-gradient(to right, #efefef 50%, #2a2a2a 50%) no-repeat;
-  background-size: 205%;
-  background-position: 100%;
-  border-radius: 50%;
-  transition: 0.4s;
-}
+  .theme-checkbox::before {
+    content: "";
+    width: 2.25em;
+    height: 2.25em;
+    position: absolute;
+    top: 0.438em;
+    left: 0.438em;
+    background: linear-gradient(to right, #efefef 50%, #2a2a2a 50%) no-repeat;
+    background-size: 205%;
+    background-position: 100%;
+    border-radius: 50%;
+    transition: 0.4s;
+  }
 
-.theme-checkbox:checked::before {
-  left: calc(100% - 2.25em - 0.438em);
-  background-position: 0;
-}
+  .theme-checkbox:checked::before {
+    left: calc(100% - 2.25em - 0.438em);
+    background-position: 0;
+  }
 
-.theme-checkbox:checked {
-  background-position: 100%;
-}
-
-
+  .theme-checkbox:checked {
+    background-position: 100%;
+  }
 
   #notification-credentials{
-   display: flex;
+    display: flex;
     background-color:rgb(194, 37, 37);
     width: 30%;
     padding-top: 1%;
@@ -172,18 +171,18 @@ const StyledWrapper = styled.div`
     white-space: nowrap;
     transition: transform 0.3s ease, opacity 0.3s ease;
     pointer-events: none;
-    }
+  }
 
-    #notification-credentials.show {
-        opacity: 1;
-        transform: translate(-50%, 0px);
-        pointer-events: auto;
-    }
+  #notification-credentials.show {
+    opacity: 1;
+    transform: translate(-50%, 0px);
+    pointer-events: auto;
+  }
 
   #submitBtn span {
-  font-size: 20px;
-  font-weight: bold;
-   }
+    font-size: 20px;
+    font-weight: bold;
+  }
 
   .animated-border {
     position: relative;
@@ -195,25 +194,21 @@ const StyledWrapper = styled.div`
   }
 
   .animated-border::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  height: 100%;
-  width: 100%;
-  background: linear-gradient(90deg, transparent, #FE4A49, transparent);
-  animation: slideBorder 2s linear infinite;
-  z-index: -2;
-}
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, transparent, #FE4A49, transparent);
+    animation: slideBorder 2s linear infinite;
+    z-index: -2;
+  }
 
   @keyframes slideBorder {
-  0% {
-    left: -100%;
+    0% { left: -100%; }
+    100% { left: 100%; }
   }
-  100% {
-    left: 100%;
-  }
-}
 
   #login {
     color: #FE4A49;
@@ -257,7 +252,6 @@ const StyledWrapper = styled.div`
   input:focus {
     background-color: #4e4f51;
     transform: scale(1.1);
-
   }
 
   #submitBtn {
@@ -277,39 +271,36 @@ const StyledWrapper = styled.div`
   }
 
   #registerBtn {
-  background: none;
-  border: none;
-  color: #c93535;
-  font-size: 20px;
-  position: relative;
-  cursor: pointer;
-  transition: transform 0.3s ease, color 0.3s ease;
-}
+    background: none;
+    border: none;
+    color: #c93535;
+    font-size: 20px;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.3s ease, color 0.3s ease;
+  }
 
-#registerBtn::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 10%;
-  width: 0%;
-  height: 2px;
-  background-color: #c93535;
-  transition: all 0.3s ease;
-}
+  #registerBtn::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 10%;
+    width: 0%;
+    height: 2px;
+    background-color: #c93535;
+    transition: all 0.3s ease;
+  }
 
-#registerBtn:hover {
-  color: #FE4A49;
-  transform: scale(1.4)
-}
+  #registerBtn:hover {
+    color: #FE4A49;
+    transform: scale(1.4)
+  }
 
-#registerBtn:hover::after {
-  left: 0;
-  width: 100%;
-  background-color: #FE4A49;
-}
-
-
+  #registerBtn:hover::after {
+    left: 0;
+    width: 100%;
+    background-color: #FE4A49;
+  }
 `;
-
 
 export default LoginPage;
