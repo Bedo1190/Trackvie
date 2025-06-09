@@ -15,6 +15,27 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
+// Firebase Token Verification Middleware
+async function authenticateToken(req, res, next) {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'No token provided' });
+  }
+
+  const idToken = authHeader.split('Bearer ')[1];
+
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    req.uid = decodedToken.uid; // Add UID to request object
+    next();
+  } catch (error) {
+    console.error('Token verification failed:', error);
+    res.status(403).json({ error: 'Invalid or expired token' });
+  }
+}
+
+
 // === READ documents from a collection ===
 app.get('/TestUrls', async (req, res) => {
   try {
@@ -93,25 +114,25 @@ app.get('/users/:userId/savedShows', async (req, res) => {
 
 // Add a saved show for a specific user
 // === POST: Save a show and auto-increment ID ===
-app.post('/users/:userId/savedShows', async (req, res) => {
-  const { userId } = req.params;
-  const { url, videoProgress, modifiedUrl,title } = req.body;
-
+// ✅ Save a show for the authenticated user
+app.post('/users/:userId/savedShows', authenticateToken, async (req, res) => {
+  const uid = req.uid;
+  const { url, videoProgress, modifiedUrl, title } = req.body;
 
   if (!url) {
     return res.status(400).json({ error: 'Missing required field: url' });
   }
 
   try {
-    const userRef = db.collection('Users').doc(userId);
+    const userRef = db.collection('Users').doc(uid);
 
     await db.runTransaction(async (t) => {
       const userDoc = await t.get(userRef);
       if (!userDoc.exists) {
-        throw new Error('User does not exist');
+        t.set(userRef, { savedShowCount: 0 });
       }
 
-      let count = userDoc.data().savedShowCount || 0;
+      let count = userDoc.exists ? userDoc.data().savedShowCount || 0 : 0;
       count += 1;
 
       const showId = `id-${count}`;
@@ -119,11 +140,9 @@ app.post('/users/:userId/savedShows', async (req, res) => {
 
       t.set(savedShowRef, {
         url: url,
-        videoProgress: videoProgress || null, // optional
+        videoProgress: videoProgress || null,
         timestamp: admin.firestore.Timestamp.now(),
-        //back when i was trying to set the video's time... still works though (for youtube, twitter etc...)!
-        //modifiedUrl: modifiedUrl,
-        title: title || "untitled",  
+        title: title || 'untitled',
       });
 
       t.update(userRef, { savedShowCount: count });
@@ -135,6 +154,7 @@ app.post('/users/:userId/savedShows', async (req, res) => {
     res.status(500).json({ error: 'Failed to save show' });
   }
 });
+
 
 
 

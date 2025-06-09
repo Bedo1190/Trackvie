@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../Context/AuthContext';
+import { auth } from '../../firebase';
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -32,16 +33,34 @@ function LoginPage() {
   };
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      await login(username, password); // Firebase login
-      // No need to navigate here because useEffect on user will handle it
-    } catch (err) {
-      console.error("Login failed:", err.message);
-      setShowNotification(true);
-      setTimeout(() => setShowNotification(false), 3000);
+  e.preventDefault();
+  try {
+    await login(username, password); // Firebase login via context
+
+    const user = auth.currentUser;
+    if (user) {
+      const token = await user.getIdToken(true);
+      const userId = user.uid;
+      console.log("sending token");
+      // Send token to the Chrome extension
+      window.postMessage(
+        {
+          source: "trackvie-webapp",
+          type: "FIREBASE_TOKEN",
+          token: token,
+          userId: userId,
+        },
+        "*"
+      );
     }
-  };
+
+    // Navigation handled by useEffect watching `user`
+  } catch (err) {
+    console.error("Login failed:", err.message);
+    setShowNotification(true);
+    setTimeout(() => setShowNotification(false), 3000);
+  }
+};
 
   useEffect(() => {
     const originalStyle = window.getComputedStyle(document.body).overflow;

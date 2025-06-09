@@ -69,12 +69,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const title = response?.title;
       if (!url) return;
 
-      // Get video progress from background
       chrome.runtime.sendMessage({ type: "get-video-progress" }, async (progressResponse) => {
         const progress = progressResponse?.progress;
-        //back when i was trying to set the video's time on the new tabs... still works though (for youtube, twitter etc...)!
-        //const separator = url.includes('?') ? '&' : '?';
-        //const modifiedUrl = `${url}${separator}t=${Math.floor(progress.currentTime)}s`;
 
         const btnText = saveBtn.querySelector(".btn-text");
         const spinner = saveBtn.querySelector("i.fa-circle-notch");
@@ -82,44 +78,59 @@ document.addEventListener("DOMContentLoaded", () => {
         btnText.style.display = "none";
         spinner.style.display = "inline-block";
 
-        try {
-          const res = await fetch("http://localhost:4000/users/id-2/savedShows", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              url: url,
-              videoProgress: progress.currentTime, // Send progress data to the API
-              //modifiedUrl: modifiedUrl
-              title: title,
-            }),
-          });
+        // 🔐 Fetch token & userId from extension storage
+        chrome.storage.local.get(["userToken", "userId"], async (result) => {
+          const token = result.userToken;
+          const userId = result.userId;
 
-          notification.textContent = res.ok ? "Show saved!" : "Failed to save.";
-        } catch (error) {
-          console.error("Error saving:", error);
-          notification.textContent = "Error while saving.";
-        } finally {
-          btnText.style.display = "inline";
-          spinner.style.display = "none";
+          if (!token || !userId) {
+            notification.textContent = "User not authenticated.";
+            notification.classList.add("show");
+            setTimeout(() => notification.classList.remove("show"), 1500);
+            btnText.style.display = "inline";
+            spinner.style.display = "none";
+            return;
+          }
 
-          notification.classList.add("show");
-          setTimeout(() => {
-            notification.classList.remove("show");
-          }, 1500);
-        }
+          try {
+            const res = await fetch(`http://localhost:4000/users/${userId}/savedShows`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                url: url,
+                videoProgress: progress.currentTime,
+                title: title,
+              }),
+            });
+
+            notification.textContent = res.ok ? "Show saved!" : "Failed to save.";
+          } catch (error) {
+            console.error("Error saving:", error);
+            notification.textContent = "Error while saving.";
+          } finally {
+            btnText.style.display = "inline";
+            spinner.style.display = "none";
+
+            notification.classList.add("show");
+            setTimeout(() => {
+              notification.classList.remove("show");
+            }, 1500);
+          }
+        });
       });
     });
   } else {
     notification.textContent = "Couldn't save show";
     notification.classList.add("show");
-
     setTimeout(() => {
       notification.classList.remove("show");
     }, 1500);
   }
 });
+
 
 
   autoSaveToggle.addEventListener("change", () => {

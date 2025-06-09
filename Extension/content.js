@@ -35,4 +35,25 @@ function waitForVideo() {
   }
 }
 
+window.addEventListener("message", function (event) {
+  if (
+    event.source !== window ||
+    event.data?.source !== "trackvie-webapp" ||
+    event.data?.type !== "FIREBASE_TOKEN"
+  ) {
+    return console.log("not saved token");
+  }
+
+  const token = event.data.token;
+  const userId = event.data.userId;
+
+  // Relay token to background script
+  chrome.runtime.sendMessage({
+    type: "SET_FIREBASE_TOKEN",
+    token: token,
+    userId: userId,
+  });
+  console.log("saved token");
+});
+
 waitForVideo();

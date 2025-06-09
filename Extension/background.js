@@ -31,4 +31,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
     return true;
   }
+  if (message.type === "SET_FIREBASE_TOKEN") {
+    chrome.storage.local.set({ userToken: message.token, userId: message.userId}, () => {
+      console.log("Token saved to chrome.storage");
+    });
+    return true;
+  }
 });
