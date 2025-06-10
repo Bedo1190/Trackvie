@@ -1,18 +1,32 @@
 import styled from "styled-components";
+import { useState } from "react";
+import { useEffect } from "react";
 
 function Card({ url, title }) {
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  useEffect(() => {
+  const handleClickOutside = (e) => {
+    if (!e.target.closest(".three-dot-button") && !e.target.closest("#dropdown-menu")) {
+      setShowDropdown(false);
+    }
+  };
+  document.addEventListener("click", handleClickOutside);
+  return () => document.removeEventListener("click", handleClickOutside);
+}, []);
+
   const openInNewTab = () => {
     window.open(url, "_blank");
   };
 
-  const getDisplayName = (fullUrl) => {
+  /* const getDisplayName = (fullUrl) => {
     try {
       const hostname = new URL(fullUrl).hostname;
       return hostname.replace("www.", "").split(".")[0];
     } catch {
       return "unknown";
     }
-  };
+  }; */
 
   const changeIcons = (url) => {
     if (!url || typeof url !== "string") {
@@ -53,8 +67,11 @@ function Card({ url, title }) {
           <button
             type="button"
             className="three-dot-button"
-            onClick={(e) => e.stopPropagation()}
-          >
+            onClick={(e) => {
+          e.stopPropagation();
+          setShowDropdown((prev) => !prev);
+        }}
+      >
             <span className="dot" />
             <span className="dot" />
             <span className="dot" />
@@ -64,7 +81,7 @@ function Card({ url, title }) {
           <span className="icon">
             <i className="fa-solid fa-circle-play"></i>
           </span>
-          <span className="showName">{getDisplayName(url)}</span>
+          <span className="showName">{title/* getDisplayName(url) */}</span>
         </div>
 
         {/* Sliding Info */}
@@ -72,6 +89,22 @@ function Card({ url, title }) {
           <p>{title}</p>
         </div>
       </div>
+      {showDropdown && (
+    <div id="dropdown-menu" className="show">
+      <div className="dropdown-item">
+        <span className="tooltip">fav</span>
+        <i className="fa-solid fa-heart"></i>
+      </div>
+      <div className="dropdown-item">
+        <span className="tooltip">profile</span>
+        <i className="fa-solid fa-user"></i>
+      </div>
+      <div className="dropdown-item">
+        <span className="tooltip">delete</span>
+        <i className="fa-solid fa-trash"></i>
+      </div>
+    </div>
+  )}
     </StyledWrapper>
   );
 }
@@ -88,12 +121,103 @@ const StyledWrapper = styled.div`
     overflow: hidden;
     background-color: #1d1d1d;
     border: 1px solid #fe4a49;
+    position:relative;
   }
 
   .wrapper:hover {
     background-color: #fe4a49;
     transform: scale(1.1);
   }
+
+      #dropdown-menu {
+        position: absolute;
+        right: -20%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        top: 0px;
+        gap: 5px;
+        z-index: 10;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(10px);
+        transition: all 0.3s ease;
+      }
+
+      #dropdown-menu.show {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+
+      .dropdown-item {
+        background-color: transparent;
+        width: 10px;
+        height: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s;
+        border-radius: 50%;
+        border: 1px solid #FE4A49;
+        color: #FE4A49;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: dropIn 0.3s ease forwards;
+      }
+      .dropdown-item .tooltip {
+        position: absolute;
+        right: 120%; /* place it to the left of the icon */
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: #FE4A49;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 12px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.5s ease;
+      }
+
+      /* Show tooltip on hover */
+      .dropdown-item.show-tooltip .tooltip {
+        opacity: 1;
+      }
+
+      .dropdown-item:nth-child(1) {
+        animation-delay: 0.05s;
+      }
+      .dropdown-item:nth-child(2) {
+        animation-delay: 0.1s;
+      }
+      .dropdown-item:nth-child(3) {
+        animation-delay: 0.15s;
+      }
+
+      @keyframes dropIn {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .dropdown-item:hover {
+        background-color: #FE4A49;
+        color: white;
+      }
+
+  
+    .showName {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  max-width: 50%; /* or a fixed width like 200px if needed */
+}
 
   #brand {
     font-size: 2em;
@@ -160,7 +284,7 @@ const StyledWrapper = styled.div`
     max-height: 0;
     overflow: hidden;
     opacity: 0;
-    transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease;
+    transition: max-height 0.5s ease, opacity 0.3s ease, padding 0.3s ease;
     background-color: #2b2b2b;
     color: white;
     width: 100%;
@@ -170,7 +294,7 @@ const StyledWrapper = styled.div`
   }
 
   .wrapper:hover .sliding-info {
-    max-height: 100px;
+    max-height: 200px;
     opacity: 1;
     padding: 10px;
   }
