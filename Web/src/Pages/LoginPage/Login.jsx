@@ -6,17 +6,17 @@ import { auth } from '../../firebase';
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { login, user } = useAuth(); // grab user here to watch auth state
+  const { login, signup, user } = useAuth(); // added signup
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showNotification, setShowNotification] = useState(false);
   const [isLight, setIsLight] = useState(false);
+  const [isRegister, setIsRegister] = useState(false); // toggle login/register
 
-  // Log user on change to debug
   useEffect(() => {
-    console.log("Current authenticated user:", user);
     if (user) {
-      navigate('/main'); // Redirect automatically if user is logged in
+      navigate('/main');
     }
   }, [user, navigate]);
 
@@ -33,34 +33,48 @@ function LoginPage() {
   };
 
   const handleLogin = async (e) => {
-  e.preventDefault();
-  try {
-    await login(username, password); // Firebase login via context
+    e.preventDefault();
+    try {
+      await login(username, password);
 
-    const user = auth.currentUser;
-    if (user) {
-      const token = await user.getIdToken(true);
-      const userId = user.uid;
-      console.log("sending token");
-      // Send token to the Chrome extension
-      window.postMessage(
-        {
-          source: "trackvie-webapp",
-          type: "FIREBASE_TOKEN",
-          token: token,
-          userId: userId,
-        },
-        "*"
-      );
+      const user = auth.currentUser;
+      if (user) {
+        const token = await user.getIdToken(true);
+        const userId = user.uid;
+        window.postMessage(
+          {
+            source: "trackvie-webapp",
+            type: "FIREBASE_TOKEN",
+            token: token,
+            userId: userId,
+          },
+          "*"
+        );
+      }
+    } catch (err) {
+      console.error("Login failed:", err.message);
+      setShowNotification(true);
+      setTimeout(() => setShowNotification(false), 3000);
     }
+  };
 
-    // Navigation handled by useEffect watching `user`
-  } catch (err) {
-    console.error("Login failed:", err.message);
-    setShowNotification(true);
-    setTimeout(() => setShowNotification(false), 3000);
-  }
-};
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      console.error("Passwords do not match!");
+      setShowNotification(true);
+      setTimeout(() => setShowNotification(false), 3000);
+      return;
+    }
+    try {
+      await signup(username, password);
+      console.log("User registered successfully!");
+    } catch (err) {
+      console.error("Registration failed:", err.message);
+      setShowNotification(true);
+      setTimeout(() => setShowNotification(false), 3000);
+    }
+  };
 
   useEffect(() => {
     const originalStyle = window.getComputedStyle(document.body).overflow;
@@ -81,14 +95,18 @@ function LoginPage() {
       <h3 style={{ color: '#FE4A49', fontSize: '50px', marginBottom: '20px', marginTop: '10px' }}>TrackVie</h3>
       <div className="animated-border">
         <div id='container'>
-          <h2 id='login' style={{ fontWeight: 'bold' }}>Login</h2>
-          <form onSubmit={handleLogin} id='form'>
+          <h2 id='login' style={{ fontWeight: 'bold' }}>
+            {isRegister ? "Register" : "Login"}
+          </h2>
+
+          <form onSubmit={isRegister ? handleRegister : handleLogin} id='form'>
             <input
               id='username'
-              type="text"
-              placeholder="Enter username"
+              type="email"
+              placeholder="Enter Email"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              required
             />
             <input
               id='password'
@@ -96,11 +114,27 @@ function LoginPage() {
               placeholder="Enter Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
-            <button id='submitBtn' type="submit"><span>Log In</span></button>
+            {isRegister && (
+              <input
+                id='confirmPassword'
+                type="password"
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+            )}
+            <button id='submitBtn' type="submit">
+              <span>{isRegister ? "Register" : "Log In"}</span>
+            </button>
           </form>
+
           <h1 style={{ fontSize: '18px', color: '#FE4A49' }}>or</h1>
-          <button id='registerBtn'>register</button>
+          <button id='registerBtn' onClick={() => setIsRegister(!isRegister)}>
+            {isRegister ? "Log In" : "Register"}
+          </button>
         </div>
       </div>
 
@@ -109,11 +143,14 @@ function LoginPage() {
         className={showNotification ? 'show' : ''}
       >
         <div><i className="fa-solid fa-circle-exclamation"></i></div>
-        <div style={{ marginLeft: '8px' }}>Wrong Username or Password</div>
+        <div style={{ marginLeft: '8px' }}>
+          {isRegister ? "Registration failed" : "Wrong Username or Password"}
+        </div>
       </div>
     </StyledWrapper>
   );
 }
+
 
 const StyledWrapper = styled.div`
   font-family: 'League Spartan', sans-serif;

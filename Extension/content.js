@@ -41,7 +41,6 @@ window.addEventListener("message", function (event) {
     event.data?.source !== "trackvie-webapp" ||
     event.data?.type !== "FIREBASE_TOKEN"
   ) {
-    return console.log("not saved token");
   }
 
   const token = event.data.token;
@@ -53,7 +52,6 @@ window.addEventListener("message", function (event) {
     token: token,
     userId: userId,
   });
-  console.log("saved token");
 });
 
 waitForVideo();

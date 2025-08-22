@@ -1,7 +1,7 @@
 import styled, { keyframes } from "styled-components";
 import { useEffect, useRef, useState } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
-import { db } from "/Users/bedrishwayze/Desktop/Freevie/trackvie/Web/src/firebase.js";
+import { db } from "../../firebase.js";
 import Card from "./Card";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../Context/AuthContext';
@@ -27,6 +27,7 @@ function Homepage() {
   const [shows, setShows] = useState([]);
   const [visibleCount, setVisibleCount] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const loaderRef = useRef(null);
   const { logout, user } = useAuth();
   const navigate = useNavigate();
@@ -99,9 +100,11 @@ function Homepage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const filteredShows = shows.filter(show =>
-    show.title?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredShows = shows
+    .filter(show =>
+      show.title?.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .filter(show => !showFavoritesOnly || show.favorited === true);
 
   return (
     <StyledWrapper>
@@ -112,7 +115,16 @@ function Homepage() {
             <span />
             <span />
             <span />
+            <div className="dropdown">
+              <div
+                className="dropdown-item"
+                onClick={() => setShowFavoritesOnly(prev => !prev)}
+              >
+                <i className="fa-solid fa-heart"></i> Favorites
+              </div>
+            </div>
           </label>
+
           <div className="right-section">
             <form action="">
               <div className="input-wrapper">
@@ -127,9 +139,12 @@ function Homepage() {
                 <i className="fa-solid fa-magnifying-glass"></i>
               </div>
             </form>
-            <div className="little">k</div>
-            <div className="little">l</div>
-            <div className="little">m</div>
+            <div
+              className="little"
+              onClick={() => setShowFavoritesOnly(prev => !prev)}
+            >
+              <i className="fa-solid fa-heart"></i>
+            </div>
             <div className="inside" id="logout" onClick={handleLogout}>
               <i className="fa-solid fa-right-from-bracket"></i>
             </div>
@@ -140,12 +155,12 @@ function Homepage() {
       <div id="b">
        {filteredShows.length === 0 ? (
           <p style={{ color: "#fe4a49", fontSize: "5em", textAlign: "center", width: "100%", fontFamily:"League Spartan" }}>
-            No results found. <i class="fa-regular fa-face-sad-cry"></i>
+            No results found. <i className="fa-regular fa-face-sad-cry"></i>
           </p>
         ) : (
           filteredShows.slice(0, visibleCount).map((show, index) => (
             <AnimatedCard key={show.id || index} delay={index * 0.1}>
-              <Card url={show.url} title={show.title} />
+              <Card url={show.url} title={show.title} id={show.id} />
             </AnimatedCard>
           ))
         )}
@@ -176,9 +191,6 @@ const StyledWrapper = styled.div`
     padding: 6px 6px 6px 0px;
     background-color: #1d1d1d;
     height: 60px;
-    @media screen and (max-width: 550px) {
-      padding: 6px 0px 6px 0px;
-    }
     transition: top 0.3s ease;
   }
 
@@ -261,13 +273,20 @@ const StyledWrapper = styled.div`
     cursor: pointer;
   }
 
+  /* Burger visible only on mobile */
   .burger {
     position: relative;
     width: 30px;
     height: 22px;
     cursor: pointer;
-    display: block;
+    display: none;
     margin-left: 10px;
+  }
+
+  @media screen and (max-width: 550px) {
+    .burger {
+      display: block;
+    }
   }
 
   .burger input {
@@ -310,6 +329,39 @@ const StyledWrapper = styled.div`
     top: 9px;
   }
 
+  /* Dropdown under burger */
+  .dropdown {
+    display: none;
+    position: absolute;
+    top: 30px;
+    left: 0;
+    background: #2a2a2a;
+    border: 1px solid #fe4a49;
+    border-radius: 8px;
+    padding: 8px;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 9999;
+  }
+
+  .burger input:checked ~ .dropdown {
+    display: flex;
+  }
+
+  .dropdown-item {
+    color: #fe4a49;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .dropdown-item:hover {
+    background-color: #3c3c3c;
+  }
+
   #b {
     display: flex;
     flex-wrap: wrap;
@@ -322,10 +374,6 @@ const StyledWrapper = styled.div`
     @media screen and (max-width: 550px) {
       justify-content: center;
     }
-  }
-
-  Card:hover {
-    background-color: #fe4a49;
   }
 
   #logout:hover {

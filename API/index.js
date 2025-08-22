@@ -113,39 +113,22 @@ app.get('/users/:userId/savedShows', async (req, res) => {
 });
 
 // Add a saved show for a specific user
-// === POST: Save a show and auto-increment ID ===
-// ✅ Save a show for the authenticated user
 app.post('/users/:userId/savedShows', authenticateToken, async (req, res) => {
   const uid = req.uid;
-  const { url, videoProgress, modifiedUrl, title } = req.body;
+  const { url, videoProgress, title } = req.body;
 
   if (!url) {
     return res.status(400).json({ error: 'Missing required field: url' });
   }
 
   try {
-    const userRef = db.collection('Users').doc(uid);
+    const savedShowRef = db.collection('Users').doc(uid).collection('savedShows').doc();
 
-    await db.runTransaction(async (t) => {
-      const userDoc = await t.get(userRef);
-      if (!userDoc.exists) {
-        t.set(userRef, { savedShowCount: 0 });
-      }
-
-      let count = userDoc.exists ? userDoc.data().savedShowCount || 0 : 0;
-      count += 1;
-
-      const showId = `id-${count}`;
-      const savedShowRef = userRef.collection('savedShows').doc(showId);
-
-      t.set(savedShowRef, {
-        url: url,
-        videoProgress: videoProgress || null,
-        timestamp: admin.firestore.Timestamp.now(),
-        title: title || 'untitled',
-      });
-
-      t.update(userRef, { savedShowCount: count });
+    await savedShowRef.set({
+      url: url,
+      videoProgress: videoProgress || null,
+      timestamp: admin.firestore.Timestamp.now(),
+      title: title || 'untitled',
     });
 
     res.status(200).json({ message: 'Show saved successfully!' });
@@ -154,8 +137,6 @@ app.post('/users/:userId/savedShows', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Failed to save show' });
   }
 });
-
-
 
 
 // === Root test endpoint ===

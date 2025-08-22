@@ -1,32 +1,59 @@
 import styled from "styled-components";
-import { useState } from "react";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
+import { doc, updateDoc, deleteDoc, getDoc } from "firebase/firestore";
+import { db } from "../../firebase";
+import { useAuth } from "../../Context/AuthContext";
 
-function Card({ url, title }) {
+function Card({ id, url, title }) {
   const [showDropdown, setShowDropdown] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
-  const handleClickOutside = (e) => {
-    if (!e.target.closest(".three-dot-button") && !e.target.closest("#dropdown-menu")) {
-      setShowDropdown(false);
-    }
-  };
-  document.addEventListener("click", handleClickOutside);
-  return () => document.removeEventListener("click", handleClickOutside);
-}, []);
+    const handleClickOutside = (e) => {
+      if (
+        !e.target.closest(".three-dot-button") &&
+        !e.target.closest("#dropdown-menu")
+      ) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
 
   const openInNewTab = () => {
     window.open(url, "_blank");
   };
 
-  /* const getDisplayName = (fullUrl) => {
+  const handleFavorite = async (e) => {
+  e.stopPropagation();
+  if (!user) return;
+
+  try {
+    const ref = doc(db, `Users/${user.uid}/savedShows`, id);
+    const snap = await getDoc(ref);
+
+    if (!snap.exists()) return;
+
+    const currentFavorited = snap.data().favorited || false;
+
+    await updateDoc(ref, { favorited: !currentFavorited });
+  } catch (err) {
+    console.error("Error toggling favorite:", err);
+  }
+};
+
+  const handleDelete = async (e) => {
+    e.stopPropagation();
+    if (!user) return;
     try {
-      const hostname = new URL(fullUrl).hostname;
-      return hostname.replace("www.", "").split(".")[0];
-    } catch {
-      return "unknown";
+      const ref = doc(db, `Users/${user.uid}/savedShows`, id);
+      await deleteDoc(ref);
+      console.log("Deleted:", id);
+    } catch (err) {
+      console.error("Error deleting doc:", err);
     }
-  }; */
+  };
 
   const changeIcons = (url) => {
     if (!url || typeof url !== "string") {
@@ -40,13 +67,13 @@ function Card({ url, title }) {
       const knownBrands = [
         "youtube",
         "github",
-        "x", 
+        "x",
         "reddit",
         "facebook",
         "linkedin",
         "instagram",
         "tiktok",
-        "spotify"
+        "spotify",
       ];
 
       if (knownBrands.includes(domain)) {
@@ -68,10 +95,10 @@ function Card({ url, title }) {
             type="button"
             className="three-dot-button"
             onClick={(e) => {
-          e.stopPropagation();
-          setShowDropdown((prev) => !prev);
-        }}
-      >
+              e.stopPropagation();
+              setShowDropdown((prev) => !prev);
+            }}
+          >
             <span className="dot" />
             <span className="dot" />
             <span className="dot" />
@@ -81,7 +108,7 @@ function Card({ url, title }) {
           <span className="icon">
             <i className="fa-solid fa-circle-play"></i>
           </span>
-          <span className="showName">{title/* getDisplayName(url) */}</span>
+          <span className="showName">{title}</span>
         </div>
 
         {/* Sliding Info */}
@@ -89,22 +116,19 @@ function Card({ url, title }) {
           <p>{title}</p>
         </div>
       </div>
+
       {showDropdown && (
-    <div id="dropdown-menu" className="show">
-      <div className="dropdown-item">
-        <span className="tooltip">fav</span>
-        <i className="fa-solid fa-heart"></i>
-      </div>
-      <div className="dropdown-item">
-        <span className="tooltip">profile</span>
-        <i className="fa-solid fa-user"></i>
-      </div>
-      <div className="dropdown-item">
-        <span className="tooltip">delete</span>
-        <i className="fa-solid fa-trash"></i>
-      </div>
-    </div>
-  )}
+        <div id="dropdown-menu" className="show">
+          <div className="dropdown-item" onClick={handleFavorite}>
+            <span className="tooltip">fav</span>
+            <i className="fa-solid fa-heart"></i>
+          </div>
+          <div className="dropdown-item" onClick={handleDelete}>
+            <span className="tooltip">delete</span>
+            <i className="fa-solid fa-trash"></i>
+          </div>
+        </div>
+      )}
     </StyledWrapper>
   );
 }
