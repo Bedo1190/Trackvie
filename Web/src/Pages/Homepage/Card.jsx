@@ -111,7 +111,6 @@ function Card({ id, url, title }) {
           <span className="showName">{title}</span>
         </div>
 
-        {/* Sliding Info */}
         <div className="sliding-info">
           <p>{title}</p>
         </div>
